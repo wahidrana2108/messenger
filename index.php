@@ -35,10 +35,10 @@
             <div class="form-section">
                 <!-- login form -->
                 <form class="login-box" action="index.php" method="POST" enctype="multipart/form-data">
-                    <div class="error_txt">This is a error message</div>
                     <input type="email" class="email ele" name="user_email" placeholder="Enter Email" required>
                     <input type="password" class="password ele" name="user_pass" placeholder="Enter Password" required>
                     <button type="submit" name="login" class="clkbtn">LogIn</button>
+                    <div class="forget">Forget Passord? <a class="text-decoration-none" href="forget_password.php">Click here</a></div>
                 </form>
                 <?php 
                     if(isset($_POST['login'])){   
@@ -81,7 +81,6 @@
 
                 <!-- signup form -->
                 <form class="signup-box" action="index.php" method="POST" enctype="multipart/form-data">
-                    <div class="error_txt">This is a error message</div>
                     <input type="text" class="name ele" name="reg_name" placeholder="Enter your name" required>
                     <input type="email" class="email ele" name="reg_email" placeholder="youremail@email.com" required>
                     <input type="password" class="password ele" name="reg_pass" placeholder="password" required>
