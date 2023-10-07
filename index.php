@@ -38,7 +38,7 @@
                     <div class="error_txt">This is a error message</div>
                     <input type="email" class="email ele" name="user_email" placeholder="Enter Email" required>
                     <input type="password" class="password ele" name="user_pass" placeholder="Enter Password" required>
-                    <button type="submit" name="login" class="clkbtn">Click</button>
+                    <button type="submit" name="login" class="clkbtn">LogIn</button>
                 </form>
                 <?php 
                     if(isset($_POST['login'])){   
@@ -90,6 +90,16 @@
                     <button type="submit" name="signup" class="clkbtn">Click</button>
                 </from>
                 <?php
+
+                    use PHPMailer\PHPMailer\PHPMailer;
+                    use PHPMailer\PHPMailer\SMTP;
+                    use PHPMailer\PHPMailer\Exception;
+
+                    require 'vendor/autoload.php';
+
+                    $mail = new PHPMailer(true);
+
+
                     if(isset($_POST['signup'])){
                         $reg_ip = getRealIpUser();
                         function getToken($len=32){
@@ -103,28 +113,65 @@
                         $c_reg_pass = $_POST['c_reg_pass'];  
                         $reg_dp = $_FILES['reg_image']['name'];  
                         $reg_dp_tmp = $_FILES['reg_image']['tmp_name']; 
-
                         
-
                         move_uploaded_file($reg_dp_tmp,"images/user_photo/$reg_dp");
 
-                        // $get_user = "select * from users where user_email = '$reg_email'";
-                        // $run_user = mysqli_query($get_user);
-                        // $count_user = mysqli_num_rows($run_user);
+                        if($reg_pass == $c_reg_pass){
+                            $reg_pass_hash =  password_hash($reg_pass, PASSWORD_DEFAULT);
 
-                        $insert_user = "insert into users (user_ip, token, user_name, user_email, user_pass, user_dp)  values ('$reg_ip','$token','$reg_name','$reg_email','$reg_pass','$reg_dp')";
-                        $run = mysqli_query($con, $insert_user);
+                            $get_user = "select * from users where user_email = '$reg_email'";
+                            $run_user = mysqli_query($con, $get_user);
+                            $count = mysqli_num_rows($run_user);
 
-                        if($run){
-                            echo "<script>alert('$reg_name')</script>";
-                            echo "<script>window.location.href='login.php'</script>";
+                            if($count > 0){
+                                echo "<script>alert('The Email already exist!')</script>";
+                                echo "<script>window.location.href='index.php'</script>";
+                            }
+                            else{
+                                $insert_user = "insert into users (user_ip, token, user_name, user_email, user_pass, user_dp)  values ('$reg_ip','$token','$reg_name','$reg_email','$reg_pass_hash','$reg_dp')";
+                                $run = mysqli_query($con, $insert_user);
+
+                                try {
+        
+                                    $send_to = $_POST['reg_email'];
+                        
+                                    $mail->isSMTP();                                            
+                                    $mail->Host       = 'smtp.gmail.com';                     
+                                    $mail->SMTPAuth   = true;                                   
+                                    $mail->Username   = 'jacquelinechavezkh@gmail.com';                     
+                                    $mail->Password   = '';                               
+                                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            
+                                    $mail->Port       = 465;                                    
+                                  
+                        
+                                    $mail->setFrom('jacquelinechavezkh@gmail.com', 'Email Confirmation');
+                                    $mail->addAddress($send_to);     
+                                  
+                                  
+                        
+                                    $mail->isHTML(true);                                  
+                                    $mail->Subject = 'Account Activation';
+                                    $mail->Body    = 'click the link to activate you account. <a href="http://localhost/messenger_clone/verification.php?email=' . $send_to . '&token=' . $token . '"> Click here</a>';
+                                  
+                                    $mail->send();
+                                    $output =  'Message has been sent';
+                                } 
+                                catch (Exception $e) {
+                                    $output =  "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                                }
+        
+                                if($run){
+                                    echo "<script>alert('Registration Successful!')</script>";
+                                    echo "<script>window.location.href='index.php'</script>";
+                                }
+                            }
+                        }                            
+                        else{
+                            echo "<script>alert('Recheck your password!')</script>";
+                            echo "<script>window.location.href='index.php'</script>";
                         }
-                    }
-                    
+                    }  
                 ?>
- 
-
-
             </div>
         </div>
 
